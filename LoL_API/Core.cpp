@@ -2,8 +2,11 @@
 
 lapi::Core::Core() : m_memory(L"League of Legends.exe")
 {
-	hijackTopFunction();
 	getFunctionPointers();
+	hijackTopFunction();
+
+	// Unpause the main LoL thread so it hits our hook
+	m_memory.resume();
 }
 
 void new_topFunction()
@@ -48,8 +51,6 @@ void lapi::Core::hijackTopFunction()
 	m_memory.beginTransaction();
 	m_memory.detourAddress(&function, newAddress);
 	m_memory.commit();
-
-	m_memory.resume();
 }
 
 lapi::Core::NewString_f lapi::Core::NewString;
