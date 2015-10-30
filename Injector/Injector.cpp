@@ -55,14 +55,14 @@ int main(int argc, char* argv[])
 bool startLoLProcess(PROCESS_INFORMATION *processInfo)
 {
 	// Create the LoL process
-	wchar_t workingDir[]{ L"C:\\Riot Games\\PBE" };
+	wchar_t workingDir[]{ L"C:\\Riot Games\\PBE\\RADS\\solutions\\lol_game_client_sln\\releases\\0.0.3.176\\deploy\\" };
 	wchar_t imagePath[]{ L"C:\\Riot Games\\PBE\\RADS\\solutions\\lol_game_client_sln\\releases\\0.0.3.176\\deploy\\League of Legends.exe" };
-	wchar_t *commandLine = nullptr;
+	wchar_t commandLine[]{ L"" };
 	SECURITY_ATTRIBUTES *secAttrs = nullptr;
 	DWORD creationFlags = CREATE_SUSPENDED;
 	STARTUPINFOW startupInfo{ sizeof(startupInfo) };
 	startupInfo.dwFlags = 0;
-	BOOL started = CreateProcessW(imagePath, commandLine, secAttrs, secAttrs, false, creationFlags, nullptr, workingDir, &startupInfo, processInfo);
+	BOOL started = CreateProcessW(imagePath, commandLine, secAttrs, secAttrs, FALSE, creationFlags, nullptr, workingDir, &startupInfo, processInfo);
 
 	if (!started)
 	{
