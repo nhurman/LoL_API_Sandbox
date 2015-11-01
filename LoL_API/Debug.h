@@ -1,6 +1,3 @@
 #pragma once
-#include <Windows.h>
-#include <cstdio>
-
-void debugPrint(char* message, ...);
-void debugPrint(wchar_t* message, ...);
+void debugPrint(char const* message, ...);
+void debugPrint(wchar_t const* message, ...);

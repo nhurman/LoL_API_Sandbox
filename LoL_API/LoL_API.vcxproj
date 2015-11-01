@@ -22,7 +22,9 @@
     <ClInclude Include="Core.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Memory.h" />
+    <ClInclude Include="Riot\String.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="String.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />

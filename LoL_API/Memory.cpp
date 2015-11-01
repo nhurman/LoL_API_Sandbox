@@ -3,6 +3,71 @@
 #include <detours.h>
 using namespace lapi;
 
+Signature::Signature(std::string const& pattern, std::string const& mask)
+{
+	m_pattern = pattern;
+	m_mask = mask;
+}
+
+Signature::Signature(char const* pattern, char const* mask)
+{
+	m_mask.append(mask);
+	m_pattern.append(pattern, m_mask.length());
+}
+
+Signature::Signature(char const* pattern)
+{
+	bool idaFormat = false;
+
+	while (*pattern)
+	{
+		if (*pattern == ' ')
+		{
+			idaFormat = true;
+			++pattern;
+		}
+		else if (*pattern == '?')
+		{
+			m_pattern.push_back(0);
+			m_mask.push_back('?');
+
+			if (idaFormat)
+			{
+				// Skip to next space
+				while (*pattern && *pattern++ != ' ');
+			}
+			else
+			{
+				pattern += 2; // Skip the second '?'
+			}
+		}
+		else
+		{
+			std::string byteStr = std::string(pattern, 2);
+			m_pattern.push_back(static_cast<unsigned char>(std::stoul(byteStr, nullptr, 16)));
+			m_mask.push_back('x');
+			pattern += 2;
+		}
+	}
+}
+
+std::string const& Signature::pattern() const
+{
+	return m_pattern;
+}
+
+std::string const& Signature::mask() const
+{
+	return m_mask;
+}
+
+std::string::size_type Signature::size() const
+{
+	return m_mask.size();
+}
+
+////////////////////////////////////////
+
 Memory::Memory(std::wstring const& moduleName) : m_inTransaction{ false }
 {
 	if (!getModule(moduleName, m_module))

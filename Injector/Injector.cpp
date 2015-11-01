@@ -30,7 +30,11 @@ int main(int argc, char* argv[])
 	wchar_t currentDirectory[FILENAME_MAX];
 	wchar_t dllPath[FILENAME_MAX];
 	GetCurrentDirectoryW(FILENAME_MAX, currentDirectory);
+#ifdef _DEBUG
 	PathCombineW(dllPath, currentDirectory, L"..\\Debug\\Sandbox_Dll.dll");
+#else
+	PathCombineW(dllPath, currentDirectory, L"..\\Release\\Sandbox_Dll.dll");
+#endif
 
 	// Inject it
 	std::cout << "-- Injecting DLL. Press Enter to terminate the process" << std::endl;

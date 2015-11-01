@@ -8,32 +8,18 @@ namespace lapi
 		std::string m_pattern;
 		std::string m_mask;
 	public:
-		Signature(std::string const& pattern, std::string const& mask)
-		{
-			m_pattern = pattern;
-			m_mask = mask;
-		}
+		Signature(std::string const& pattern, std::string const& mask);
+		Signature(char const* pattern, char const* mask);
 
-		Signature(char const* pattern, char const* mask)
-		{
-			m_mask.append(mask);
-			m_pattern.append(pattern, m_mask.length());
-		}
+		// Formats:
+		// - AA BB CC ?? DD EE
+		// - AA BB CC ? DD EE
+		// - AABBCCDD??EE
+		Signature(char const* pattern);
 
-		std::string const& pattern() const
-		{
-			return m_pattern;
-		}
-
-		std::string const& mask() const
-		{
-			return m_mask;
-		}
-
-		std::string::size_type size() const
-		{
-			return m_mask.size();
-		}
+		std::string const& pattern() const;
+		std::string const& mask() const;
+		std::string::size_type size() const;
 	};
 
 	typedef BYTE* Address;

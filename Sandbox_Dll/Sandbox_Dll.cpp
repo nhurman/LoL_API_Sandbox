@@ -7,12 +7,15 @@
 
 lapi::Core *g_api = nullptr;
 
+void openConsole();
+
 BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
 	switch (fdwReason)
 	{
 	case DLL_PROCESS_ATTACH:
 	{
+		//openConsole();
 		debugPrint("Injected!");
 		g_api = new lapi::Core();
 
@@ -27,4 +30,13 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	}
 
 	return TRUE;
+}
+
+void openConsole()
+{
+	AllocConsole();
+	FILE* fp;
+	freopen_s(&fp, "CONOUT$", "w", stdout);
+	freopen_s(&fp, "CONOUT$", "w", stderr);
+	freopen_s(&fp, "CONIN$", "r", stdin);
 }
