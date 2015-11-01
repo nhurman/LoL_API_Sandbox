@@ -18,6 +18,10 @@ BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		//openConsole();
 		debugPrint("Injected!");
 		g_api = new lapi::Core();
+		if (!g_api->initialized())
+		{
+			return FALSE;
+		}
 
 		break;
 	}

@@ -1,20 +1,16 @@
 ﻿#pragma once
 #include "Memory.h"
-#include "Riot/String.h"
 
 namespace lapi
 {
 	class Core
 	{
+		bool m_initialized;
+		Memory m_memory;
+		void hookFunctions();
+
 	public:
 		Core();
-
-	private:
-		Memory m_memory;
-
-		void hijackTopFunction();
-		void getFunctionPointers();
-
-	public:
+		bool initialized() const { return m_initialized; }
 	};
 }

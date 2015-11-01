@@ -21,23 +21,16 @@ namespace lapi
 		std::string const& mask() const;
 		std::string::size_type size() const;
 	};
-
-	typedef BYTE* Address;
 	
-	template<class T>
-	Address GetAddress(T v)
-	{
-		return reinterpret_cast<Address>(v);
-	}
-
 	class Memory
 	{
 	public:
+		typedef BYTE* Address;
 		Memory(std::wstring const& moduleName);
 		~Memory();
 
-		Address findSignature(Signature const& sig);
-		template<typename T> T findSignature(Signature const& sig);
+		Address findSignature(Signature const& sig) const;
+		template<typename T> T findSignature(Signature const& sig) const;
 
 		void beginTransaction();
 		Address detourAddress(Address const& source, Address const& dest);
@@ -45,18 +38,25 @@ namespace lapi
 		void commit();
 
 		void resume();
+
+		template<typename T> static Address GetAddress(T v);
+		static Address BaseAddress;
 	
 	private:
 		bool m_inTransaction;
 		static bool getModule(std::wstring const& moduleName, MODULEENTRY32W& module);
-
-	private:
 		MODULEENTRY32W m_module;
 	};
 
 	template <typename T>
-	T Memory::findSignature(Signature const& sig)
+	T Memory::findSignature(Signature const& sig) const
 	{
 		return reinterpret_cast<T>(findSignature(sig));
+	}
+
+	template<class T>
+	Memory::Address Memory::GetAddress(T v)
+	{
+		return reinterpret_cast<Address>(v);
 	}
 }

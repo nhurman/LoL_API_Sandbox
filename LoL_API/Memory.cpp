@@ -68,6 +68,7 @@ std::string::size_type Signature::size() const
 
 ////////////////////////////////////////
 
+Memory::Address Memory::BaseAddress;
 Memory::Memory(std::wstring const& moduleName) : m_inTransaction{ false }
 {
 	if (!getModule(moduleName, m_module))
@@ -75,13 +76,15 @@ Memory::Memory(std::wstring const& moduleName) : m_inTransaction{ false }
 		debugPrint("ERROR - Could not find main module");
 		return;
 	}
+
+	BaseAddress = m_module.modBaseAddr;
 }
 
 Memory::~Memory()
 {
 }
 
-Address Memory::findSignature(Signature const& sig)
+Memory::Address Memory::findSignature(Signature const& sig) const
 {
 	// Adapted from Boyer-Moore-Horspool algorithm
 	// https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore%E2%80%93Horspool_algorithm
@@ -101,8 +104,9 @@ Address Memory::findSignature(Signature const& sig)
 	}
 	for (size_t i = 0; i < sig.size() - 1; ++i)
 	{
-		T[sig.pattern()[i]] = min(maxSkip, sig.size() - 1 - i);
+		T[(unsigned char)sig.pattern()[i]] = min(maxSkip, sig.size() - 1 - i);
 	}
+
 
 	// Now scan
 	int skip = 0;
@@ -135,12 +139,14 @@ void Memory::beginTransaction()
 	}
 }
 
-Address Memory::detourAddress(Address const& source, Address const& dest)
+Memory::Address Memory::detourAddress(Address const& source, Address const& dest)
 {
 	PVOID originalFunction = source;
 	PVOID newFunction = dest;
-	if (0 != DetourAttach(&originalFunction, newFunction))
+	auto res = DetourAttach(&originalFunction, newFunction);
+	if (0 != res)
 	{
+		debugPrint("ERROR DETOURATTACH RETURNED %ld", res);
 		return nullptr;
 	}
 

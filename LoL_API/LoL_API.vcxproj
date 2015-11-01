@@ -22,6 +22,7 @@
     <ClInclude Include="Core.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Memory.h" />
+    <ClInclude Include="Offsets.h" />
     <ClInclude Include="Riot\String.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="String.h" />
@@ -30,6 +31,7 @@
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Memory.cpp" />
+    <ClCompile Include="Offsets.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4401CA9C-CA47-4B1D-A063-F82CF4BF9EA5}</ProjectGuid>

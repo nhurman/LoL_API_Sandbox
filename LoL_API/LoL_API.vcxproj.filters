@@ -36,6 +36,9 @@
     <ClInclude Include="Riot\String.h">
       <Filter>Riot</Filter>
     </ClInclude>
+    <ClInclude Include="Offsets.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Memory.cpp">
@@ -45,6 +48,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Offsets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

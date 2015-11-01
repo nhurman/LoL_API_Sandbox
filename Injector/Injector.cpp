@@ -38,11 +38,13 @@ int main(int argc, char* argv[])
 
 	// Inject it
 	std::cout << "-- Injecting DLL. Press Enter to terminate the process" << std::endl;
+	std::cin.get();
 	HMODULE hDll = loadDll(processInfo.hProcess, dllPath);
 	if (!hDll)
 	{
-		std::cerr << "Could load DLL into target process" << std::endl;
-		return false;
+		std::cerr << "Could not load DLL into target process" << std::endl;
+		TerminateProcess(processInfo.hProcess, 0);
+		return 1;
 	}
 
 	// Wait for user input then quit
@@ -50,17 +52,19 @@ int main(int argc, char* argv[])
 	if (!unloadDll(processInfo.hProcess, hDll))
 	{
 		std::cerr << "Could not unload DLL from the target process" << std::endl;
-		return false;
+		TerminateProcess(processInfo.hProcess, 0);
+		return 1;
 	}
 
-	return TRUE == TerminateProcess(processInfo.hProcess, 0);
+	TerminateProcess(processInfo.hProcess, 0);
+	return 0;
 }
 
 bool startLoLProcess(PROCESS_INFORMATION *processInfo)
 {
 	// Create the LoL process
-	wchar_t workingDir[]{ L"C:\\Riot Games\\PBE\\RADS\\solutions\\lol_game_client_sln\\releases\\0.0.3.176\\deploy\\" };
-	wchar_t imagePath[]{ L"C:\\Riot Games\\PBE\\RADS\\solutions\\lol_game_client_sln\\releases\\0.0.3.176\\deploy\\League of Legends.exe" };
+	wchar_t workingDir[]{ L"C:\\Riot Games\\PBE\\RADS\\solutions\\lol_game_client_sln\\releases\\0.0.3.177\\deploy\\" };
+	wchar_t imagePath[]{ L"C:\\Riot Games\\PBE\\RADS\\solutions\\lol_game_client_sln\\releases\\0.0.3.177\\deploy\\League of Legends.exe" };
 	wchar_t commandLine[]{ L"" };
 	SECURITY_ATTRIBUTES *secAttrs = nullptr;
 	DWORD creationFlags = CREATE_SUSPENDED;
