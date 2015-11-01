@@ -32,4 +32,3 @@ private:
 	
 	dbwin_buffer* dbBuffer;
 };
-

@@ -38,7 +38,6 @@ int main(int argc, char* argv[])
 
 	// Inject it
 	std::cout << "-- Injecting DLL. Press Enter to terminate the process" << std::endl;
-	std::cin.get();
 	HMODULE hDll = loadDll(processInfo.hProcess, dllPath);
 	if (!hDll)
 	{
