@@ -1,11 +1,15 @@
 ﻿#include "Core.h"
+#include "Riot/Log.h"
+#include "Riot/Misc.h"
 #include "Riot/String.h"
+
+#include <iostream>
 
 lapi::Core::Core() : m_initialized{ false }, m_memory{ L"League of Legends.exe" }
 {
-	char const* lolVersion = reinterpret_cast<char const*>(Memory::BaseAddress + Offsets::Version);
-	char const* offsetsVersion = Offsets::_version;
-	debugPrint("Version %s", lolVersion);
+	uint32_t lolCommit = *reinterpret_cast<uint32_t*>(Memory::BaseAddress + Offsets::Commit);
+	uint32_t offsetsCommit = Offsets::_commit;
+	debugPrint("LoL binary from commit %u", lolCommit);
 		
 	// To update the signatures, uncomment this block then copy the output to Offsets.h
 	// then change the version in Offsets.cpp
@@ -17,10 +21,10 @@ lapi::Core::Core() : m_initialized{ false }, m_memory{ L"League of Legends.exe" 
 	//*/
 
 	// Check that the version matches the one of the signatures
-	if (strcmp(offsetsVersion, lolVersion) != 0)
+	if (lolCommit != offsetsCommit)
 	{
 		debugPrint("!!! VERSION MISMATCH !!!");
-		debugPrint("I have signatures for %s but detected version is %s", offsetsVersion, lolVersion);
+		debugPrint("I have signatures for [%u] but detected version is [%u]", offsetsCommit, lolCommit);
 		debugPrint("Please update the signatures (see %s:%ld)", __FILE__, __LINE__);
 		return;
 	}
@@ -32,21 +36,60 @@ lapi::Core::Core() : m_initialized{ false }, m_memory{ L"League of Legends.exe" 
 	m_memory.resume();
 }
 
-void __cdecl new_log_debug(char* message, ...)
+__declspec(naked) uint32_t* getEip()
 {
+	__asm {
+		mov eax, [esp]
+		ret
+	}
+}
+
+void __cdecl new_debugLog(char const* message, ...)
+{
+	//printf("Paused at %p\n", getEip());
+	//std::cin.get();
+
+	for (auto i = 0; i < 3; ++i)
+		if (IsBadReadPtr(&message[i], 1) || message[i] > 126 || message[i] < 9
+			|| (9 < message[i] && message[i] < 32))
+			return;
+
 	va_list va;
 	va_start(va, message);
 	char buffer[1024];
 	vsnprintf(buffer, sizeof(buffer), message, va);
+	auto len = strlen(buffer);
+	if ('\n' == buffer[len - 1])
+	{
+		buffer[len - 1] = '\0';
+	}
 	debugPrint("[DEBUG] %s", buffer);
 	va_end(va);
 }
 
+int __cdecl new_log(int unk1, int unk2, int unk3, const char *message, ...)
+{
+	if (unk1 == 0 && unk2 == 5 && unk3 == 0) return 0;
+	va_list va;
+	va_start(va, message);
+	char buffer[1024];
+	vsnprintf(buffer, sizeof(buffer), message, va);
+	auto len = strlen(buffer);
+	if ('\n' == buffer[len - 1])
+	{
+		buffer[len - 1] = '\0';
+	}
+	debugPrint("[Log] (%i %i %i) %s", unk1, unk2, unk3, buffer);
+	va_end(va);
+	return 0;
+}
+
 void new_topFunction()
 {
-	debugPrint("-- Done");
-	SuspendThread(GetCurrentThread());
-	__debugbreak();
+	debugPrint(":)");
+	//lapi::Riot::topLevelFunction();
+	//SuspendThread(GetCurrentThread());
+	//__debugbreak();
 }
 
 void lapi::Core::hookFunctions()
@@ -69,10 +112,16 @@ void lapi::Core::hookFunctions()
 
 	// Hijack one of the top-level functions in the game so we can get
 	// control of the execution flow once the initialization has been done
-	m_memory.detourAddress(Memory::BaseAddress + Offsets::main, Memory::GetAddress(new_topFunction));
+	Riot::topLevelFunction = reinterpret_cast<Riot::topLevelFunction_t>(Memory::BaseAddress + Offsets::main);
+	m_memory.detourAddress(&Riot::topLevelFunction, new_topFunction);
+
+	// Regular logging function
+	Riot::Log::log = reinterpret_cast<Riot::Log::log_t>(Memory::BaseAddress + Offsets::Log);
+	m_memory.detourAddress(&Riot::Log::log, new_log);
 
 	// Nulled debug function
-	m_memory.detourAddress(Memory::BaseAddress + Offsets::Log_Debug, Memory::GetAddress(new_log_debug));
+	Riot::Log::debugLog = reinterpret_cast<Riot::Log::debugLog_t>(Memory::BaseAddress + Offsets::Log_Debug);
+	m_memory.detourAddress(&Riot::Log::debugLog, new_debugLog);
 
 	m_memory.commit();
 }

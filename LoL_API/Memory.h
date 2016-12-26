@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include <deque>
 
 namespace lapi
 {
@@ -33,8 +34,8 @@ namespace lapi
 		template<typename T> T findSignature(Signature const& sig) const;
 
 		void beginTransaction();
-		Address detourAddress(Address const& source, Address const& dest);
-		bool detourAddress(Address *source, Address const& dest);
+		bool detourAddress(Address* originalFunction, Address const& newFunction);
+		template<typename T> bool detourAddress(T* originalFunction, T newFunction);
 		void commit();
 
 		void resume();
@@ -46,6 +47,13 @@ namespace lapi
 		bool m_inTransaction;
 		static bool getModule(std::wstring const& moduleName, MODULEENTRY32W& module);
 		MODULEENTRY32W m_module;
+
+		struct Detour {
+			Address* originalFunction;
+			Address newFunction;
+		};
+		std::deque<Detour> m_detours;
+		std::deque<Detour> m_uncommitedDetours;
 	};
 
 	template <typename T>
@@ -58,5 +66,13 @@ namespace lapi
 	Memory::Address Memory::GetAddress(T v)
 	{
 		return reinterpret_cast<Address>(v);
+	}
+
+	template<typename T>
+	bool Memory::detourAddress(T* originalFunction, T newFunction)
+	{
+		Memory::Address* originalA = reinterpret_cast<Memory::Address*>(originalFunction);
+		Memory::Address newA = reinterpret_cast<Memory::Address>(newFunction);
+		return detourAddress(originalA, newA);
 	}
 }

@@ -1,3 +1,3 @@
 #include "Offsets.h"
 
-char const* lapi::Offsets::_version = "5.22.0.185";
+uint32_t lapi::Offsets::_commit = 1694246;

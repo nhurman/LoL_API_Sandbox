@@ -82,6 +82,24 @@ Memory::Memory(std::wstring const& moduleName) : m_inTransaction{ false }
 
 Memory::~Memory()
 {
+	beginTransaction();
+	for (auto d : m_detours)
+	{
+		auto res = DetourDetach(reinterpret_cast<PVOID*>(d.originalFunction), d.newFunction);
+		if (0 != res)
+		{
+			debugPrint("ERROR DETOURDETACH RETURNED %ld", res);
+		}
+	}
+
+	commit();
+
+	for (auto d : m_detours)
+	{
+		delete d.originalFunction;
+	}
+
+	m_detours.clear();
 }
 
 Memory::Address Memory::findSignature(Signature const& sig) const
@@ -139,29 +157,23 @@ void Memory::beginTransaction()
 	}
 }
 
-Memory::Address Memory::detourAddress(Address const& source, Address const& dest)
+bool Memory::detourAddress(Address* originalFunction, Address const& newFunction)
 {
-	PVOID originalFunction = source;
-	PVOID newFunction = dest;
-	auto res = DetourAttach(&originalFunction, newFunction);
-	if (0 != res)
+	if (!m_inTransaction)
 	{
-		debugPrint("ERROR DETOURATTACH RETURNED %ld", res);
-		return nullptr;
-	}
-
-	return static_cast<Address>(originalFunction);
-}
-
-bool Memory::detourAddress(Address* source, Address const& dest)
-{
-	Address originalFunction = detourAddress(*source, dest);
-	if (nullptr == originalFunction)
-	{
+		debugPrint("ERROR CANNOT CALL detourAddress OUTSIDE OF A TRANSACTION");
 		return false;
 	}
 
-	*source = originalFunction;
+	auto res = DetourAttach(reinterpret_cast<PVOID*>(originalFunction), newFunction);
+	if (0 != res)
+	{
+		debugPrint("ERROR DETOURATTACH RETURNED %ld", res);
+		return false;
+	}
+
+	Detour d{ originalFunction, newFunction };
+	m_uncommitedDetours.push_back(d);
 	return true;
 }
 
@@ -171,6 +183,13 @@ void Memory::commit()
 	{
 		DetourTransactionCommit();
 		m_inTransaction = false;
+
+		for (auto i: m_uncommitedDetours)
+		{
+			m_detours.push_back(i);
+		}
+		
+		m_uncommitedDetours.clear();
 	}
 }
 

@@ -6,6 +6,7 @@ Release/
 *.opensdf
 *.vcxproj.user
 .vs/
+*.VC.opendb
 
 # Compiled Object files
 *.slo

@@ -23,9 +23,10 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="Offsets.h" />
+    <ClInclude Include="Riot\Log.h" />
+    <ClInclude Include="Riot\Misc.h" />
     <ClInclude Include="Riot\String.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="String.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />

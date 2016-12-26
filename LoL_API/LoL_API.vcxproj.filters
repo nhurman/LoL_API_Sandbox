@@ -30,14 +30,17 @@
     <ClInclude Include="Core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="String.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Riot\String.h">
       <Filter>Riot</Filter>
     </ClInclude>
     <ClInclude Include="Offsets.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Riot\Misc.h">
+      <Filter>Riot</Filter>
+    </ClInclude>
+    <ClInclude Include="Riot\Log.h">
+      <Filter>Riot</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

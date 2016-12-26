@@ -56,14 +56,15 @@ int main(int argc, char* argv[])
 	}
 
 	TerminateProcess(processInfo.hProcess, 0);
+
 	return 0;
 }
 
 bool startLoLProcess(PROCESS_INFORMATION *processInfo)
 {
 	// Create the LoL process
-	wchar_t workingDir[]{ L"C:\\Riot Games\\PBE\\RADS\\solutions\\lol_game_client_sln\\releases\\0.0.3.177\\deploy\\" };
-	wchar_t imagePath[]{ L"C:\\Riot Games\\PBE\\RADS\\solutions\\lol_game_client_sln\\releases\\0.0.3.177\\deploy\\League of Legends.exe" };
+	wchar_t workingDir[]{ L"C:\\Riot Games\\League of Legends\\RADS\\solutions\\lol_game_client_sln\\releases\\0.0.1.155\\deploy\\" };
+	wchar_t imagePath[]{ L"C:\\Riot Games\\League of Legends\\RADS\\solutions\\lol_game_client_sln\\releases\\0.0.1.155\\deploy\\League of Legends.exe" };
 	wchar_t commandLine[]{ L"" };
 	SECURITY_ATTRIBUTES *secAttrs = nullptr;
 	DWORD creationFlags = CREATE_SUSPENDED;

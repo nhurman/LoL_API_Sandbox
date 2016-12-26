@@ -22,13 +22,14 @@ namespace lapi
 {
 	struct Offsets
 	{
-		static char const* _version;
+		static uint32_t _commit;
 		enum
 		{
-			main = 0x00D32757,
-			Version = 0x01057A54,
+			main = 0x0012CF20,
+			Commit = 0x0126345C,
 			String_Assign = 0x004B44D0,
-			Log_Debug = 0x0015CC20,
+			Log_Debug = 0x001524B0,
+			Log = 0x008064D0,
 		};
 	};
 
@@ -47,18 +48,28 @@ namespace lapi
 		}
 		else
 		{
+			debugPrint("  // Signature found at 0x%p,", addr);
 			addr += offset;
+			debugPrint("  // With offset, I'm now at 0x%p,", addr);
+			debugPrint("  // Value at 0x%p: 0x%x", addr, *(byte*)addr);
+			debugPrint("  // Value at 0x%p+1: 0x%x", addr, *((byte*)addr+1));
+			debugPrint("  // Value at 0x%p+2: 0x%x", addr, *((byte*)addr+2));
+			debugPrint("  // Value at 0x%p+3: 0x%x", addr, *((byte*)addr+3));
+			debugPrint("  // Value at 0x%p+4: 0x%x", addr, *((byte*)addr+4));
 
 			if (loc == LocationType::Relative)
 			{
 				int relative = *(int*)addr + 4;
+				debugPrint("  // Relative requires a jump of 0x%p,", relative);
 				addr += relative;
+				debugPrint("  // Relative address, I'm now at 0x%p,", addr);
 			}
 
 			for (auto ind : indirections)
 			{
 				auto pointedAddr = *reinterpret_cast<BYTE**>(addr);
 				addr = pointedAddr + ind;
+				debugPrint("  // Applied indirection, I'm now at 0x%p,", addr);
 			}
 
 			size_t o = addr - Memory::BaseAddress;
@@ -69,10 +80,11 @@ namespace lapi
 
 	inline void DumpSignatures(Memory const& m)
 	{
-		getOffset(m, "main", Signature("55 8B EC 83 3D ? ? ? ? ? 74 19"));
-		getOffset(m, "Version", Signature("A3 ? ? ? ? 75 2B"), 0x1C, std::vector<int>({0}));
-		getOffset(m, "Log_Debug", Signature("68 ? ? ? ? 6A 00 6A 01 6A 03 E8 ? ? ? ? 8D 5F 0C"), 0x1A, std::vector<int>(), LocationType::Relative);
-		getOffset(m, "String_Assign", Signature("8B ?? 55 8B EC 53 8B 5D 08 56 8B F1 85 DB"));
+		// Search for WinMain
+		getOffset(m, "main", Signature("51 6A 00 BA ? ? ? ? B9 ? ? ? ? E8 ? ? ? ? 83 C4 08 A2 ? ? ? ? C3"));
+		getOffset(m, "Commit", Signature("8B 35 ? ? ? ? 80 3D ? ? ? ? ? 75 2C"), 2, std::vector<int>({ 0 }));
+		getOffset(m, "Log_Debug", Signature("E8 ? ? ? ? 83 3D ? ? ? ? ? 74 05 E8 ? ? ? ? 83 3D"), 1, std::vector<int>(), LocationType::Relative);
+		getOffset(m, "Log", Signature("55 8B EC 83 E4 F8 8B 55 14"));
 	}
 
 }
